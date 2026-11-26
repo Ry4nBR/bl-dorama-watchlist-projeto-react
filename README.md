@@ -77,6 +77,16 @@ Em conformidade com os requisitos da **Atividade 01 (Aula 08)**, o projeto aplic
 
 ---
 
+## Acesso à aplicação e utilização da API
+
+Este projeto foi desenvolvido para fins acadêmicos e utiliza a API do The Movie Database (TMDB) para consultar e apresentar informações sobre séries.
+
+A aplicação está disponível na [Vercel](https://bl-dorama-watchlist-projeto-react.vercel.app/). **A versão publicada ainda precisa ser atualizada** com a integração ao TMDB e configurada com uma chave de API para permitir sua avaliação sem configuração local.
+
+Para execução local, configure uma chave de API no arquivo `.env`, conforme o modelo disponibilizado em [`.env.example`](.env.example). A credencial utilizada durante o desenvolvimento poderá ser disponibilizada ao professor, mediante solicitação, exclusivamente para fins de avaliação acadêmica.
+
+---
+
 ## 💻 Como Executar o Projeto
 
 1. **Clone o repositório:**
@@ -94,7 +104,7 @@ Em conformidade com os requisitos da **Atividade 01 (Aula 08)**, o projeto aplic
    npm install
    ```
 
-4. **Configure o TMDB:** crie um arquivo `.env` na raiz com `VITE_TMDB_API_KEY=sua_chave_da_api`, substituindo o valor pela chave de API v3 do TMDB. Reinicie o servidor após alterar o arquivo. A chave é exposta no navegador pelo Vite; não use credenciais privadas ou privilegiadas.
+4. **Configure o TMDB:** copie `.env.example` para `.env` na raiz do projeto e substitua `sua_chave_da_api` pela chave de API v3 do TMDB. Reinicie o servidor após alterar o arquivo. A chave é exposta no navegador pelo Vite; não use credenciais privadas ou privilegiadas.
 
 5. **Inicie o servidor de desenvolvimento:**
    ```bash
