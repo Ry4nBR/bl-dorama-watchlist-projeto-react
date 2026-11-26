@@ -29,8 +29,8 @@ async function requisitar(caminho, parametros = {}, signal) {
   return resposta.json();
 }
 
-export async function buscarDoramas(signal) {
-  const parametros = { with_origin_country: "KR|TH|JP|TW", sort_by: "popularity.desc" };
+export async function buscarDoramas(signal, pagina = 1) {
+  const parametros = { with_origin_country: "KR|TH|JP|TW", sort_by: "popularity.desc", page: pagina };
   const [populares, bl] = await Promise.all([
     requisitar("/discover/tv", parametros, signal),
     requisitar("/discover/tv", { ...parametros, with_keywords: "289844" }, signal),
@@ -39,7 +39,27 @@ export async function buscarDoramas(signal) {
   // A consulta de BL tem prioridade quando um título aparece nas duas listas.
   const idsBL = new Set(bl.results.map((serie) => serie.id));
   const series = new Map([...populares.results, ...bl.results].map((serie) => [serie.id, serie]));
-  return Array.from(series.values(), (serie) => adaptarDorama(serie, idsBL.has(serie.id)));
+  return {
+    doramas: Array.from(series.values(), (serie) => adaptarDorama(serie, idsBL.has(serie.id))),
+    temMais: pagina < Math.min(500, Math.max(populares.total_pages, bl.total_pages)),
+  };
+}
+
+export async function pesquisarDoramas(busca, pagina, signal) {
+  const resultado = await requisitar("/search/tv", { query: busca, page: pagina }, signal);
+  const series = resultado.results.filter((serie) => (serie.origin_country ?? []).some((pais) => pais in PAISES));
+  // A busca não retorna palavras-chave; os detalhes identificam produções BL.
+  const detalhes = await Promise.allSettled(series.map((serie) =>
+    requisitar(`/tv/${serie.id}`, { append_to_response: "keywords" }, signal)
+  ));
+  return {
+    doramas: series.map((serie, indice) => {
+      const detalhe = detalhes[indice];
+      const palavras = detalhe.status === "fulfilled" ? detalhe.value.keywords?.results ?? [] : [];
+      return adaptarDorama(serie, palavras.some((palavra) => palavra.id === 289844));
+    }),
+    temMais: pagina < Math.min(500, resultado.total_pages),
+  };
 }
 
 // Recupera títulos da lista que não estão mais na página atual do catálogo.
