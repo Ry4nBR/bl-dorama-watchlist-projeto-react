@@ -13,6 +13,7 @@ export function App() {
   const [busca, setBusca] = useState("");
   const [generoSelecionado, setGeneroSelecionado] = useState("Todos");
   const [apenasNaoAssistidos, setApenasNaoAssistidos] = useState(false);
+  const [apenasMinhaLista, setApenasMinhaLista] = useState(false);
 
   // Cancela a requisi??o se o componente for desmontado.
   useEffect(() => {
@@ -40,6 +41,12 @@ export function App() {
     ));
   }
 
+  function alternarMinhaLista(id) {
+    setDoramas((lista) => lista.map((item) =>
+      item.id === id ? { ...item, naLista: !item.naLista } : item
+    ));
+  }
+
   // Filtragem encadeada antes de renderizar
   const doramasFiltrados = doramas.filter((item) => {
     const bateBusca =
@@ -49,7 +56,7 @@ export function App() {
       generoSelecionado === "Todos" || item.genero === generoSelecionado;
     const bateStatus = !apenasNaoAssistidos || !item.assistido;
 
-    return bateBusca && bateGenero && bateStatus;
+    return bateBusca && bateGenero && bateStatus && (!apenasMinhaLista || item.naLista);
   });
 
   const totalAssistidos = doramas.filter((item) => item.assistido).length;
@@ -71,6 +78,11 @@ export function App() {
           aoAlternarNaoAssistidos={setApenasNaoAssistidos}
         />
 
+        <label className="filtro-lista">
+          <input type="checkbox" checked={apenasMinhaLista} onChange={(evento) => setApenasMinhaLista(evento.target.checked)} />
+          Mostrar apenas minha lista ({doramas.filter((item) => item.naLista).length})
+        </label>
+
         {carregando ? (
           <p className="lista-vazia" role="status">Carregando t?tulos...</p>
         ) : erro ? (
@@ -79,6 +91,7 @@ export function App() {
           <ListaDoramas
             doramas={doramasFiltrados}
             aoAlternarStatus={alternarStatusAssistido}
+            aoAlternarLista={alternarMinhaLista}
           />
         )}
       </main>

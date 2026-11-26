@@ -215,3 +215,15 @@ main {
   justify-content: center;
   color: #6b627a;
 }
+
+.filtro-lista {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1.5rem;
+}
+
+.card-rodape {
+  display: grid;
+  gap: 0.5rem;
+}

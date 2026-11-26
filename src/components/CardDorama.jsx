@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export function CardDorama({ dorama, aoAlternarStatus }) {
+export function CardDorama({ dorama, aoAlternarStatus, aoAlternarLista }) {
   const [erroPoster, setErroPoster] = useState(false);
 
   return (
@@ -23,11 +23,14 @@ export function CardDorama({ dorama, aoAlternarStatus }) {
       <p className="sinopse">{dorama.sinopse}</p>
 
       <div className="card-rodape">
+        <button type="button" className="btn-status pendente" onClick={() => aoAlternarLista(dorama.id)} aria-pressed={Boolean(dorama.naLista)}>
+          {dorama.naLista ? "✓ Na minha lista (remover)" : "+ Adicionar à lista"}
+        </button>
         <button
           onClick={() => aoAlternarStatus(dorama.id)}
           className={dorama.assistido ? "btn-status assistido" : "btn-status pendente"}
         >
-          {dorama.assistido ? "✓ Já assisti" : "+ Quero assistir"}
+          {dorama.assistido ? "✓ Já assisti" : "Marcar como assistido"}
         </button>
       </div>
     </article>
