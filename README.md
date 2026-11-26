@@ -16,7 +16,8 @@ O **Dorama & BL Watchlist** é um painel interativo para organizar e acompanhar 
 - **Busca Dinâmica:** Campo de pesquisa em tempo real por título da obra ou país de origem.
 - **Filtro por Gênero:** Botões de seleção rápida para alternar entre *Todos*, *BL*, *Romance* e *Fantasia*.
 - **Filtro de Pendências:** Opção para visualizar apenas os títulos que ainda não foram assistidos.
-- **Controle de Status e Contador:** Botão interativo em cada card para marcar/desmarcar como assistido, atualizando automaticamente o placar geral no cabeçalho.
+- **Lista, assistidos e favoritos:** Adicione títulos à lista, marque os assistidos e favorite suas séries. O cabeçalho mostra assistidos em relação ao total adicionado.
+- **Avaliações pessoais:** Depois de marcar uma série como assistida, atribua de uma a cinco estrelas e, se desejar, adicione um comentário.
 
 ---
 
@@ -66,12 +67,23 @@ Em conformidade com os requisitos da **Atividade 01 (Aula 08)**, o projeto aplic
     │   ├── CardDorama.jsx
     │   ├── ListaDoramas.jsx
     │   └── Rodape.jsx
-    ├── data/
-    │   └── doramasData.js
+    ├── services/
+    │   ├── tmdbApi.js
+    │   └── preferenciasStorage.js
     ├── App.css
     ├── App.jsx
     └── main.jsx
 ```
+
+---
+
+## Acesso à aplicação e utilização da API
+
+Este projeto foi desenvolvido para fins acadêmicos e utiliza a API do The Movie Database (TMDB) para consultar e apresentar informações sobre séries.
+
+A aplicação está disponível na [Vercel](https://bl-dorama-watchlist-projeto-react.vercel.app/). **A versão publicada ainda precisa ser atualizada** com a integração ao TMDB e configurada com uma chave de API para permitir sua avaliação sem configuração local.
+
+Para execução local, configure uma chave de API no arquivo `.env`, conforme o modelo disponibilizado em [`.env.example`](.env.example). A credencial utilizada durante o desenvolvimento poderá ser disponibilizada ao professor, mediante solicitação, exclusivamente para fins de avaliação acadêmica.
 
 ---
 
@@ -92,9 +104,12 @@ Em conformidade com os requisitos da **Atividade 01 (Aula 08)**, o projeto aplic
    npm install
    ```
 
-4. **Inicie o servidor de desenvolvimento:**
+4. **Configure o TMDB:** copie `.env.example` para `.env` na raiz do projeto e substitua `sua_chave_da_api` pela chave de API v3 do TMDB. Reinicie o servidor após alterar o arquivo. A chave é exposta no navegador pelo Vite; não use credenciais privadas ou privilegiadas.
+
+5. **Inicie o servidor de desenvolvimento:**
    ```bash
    npm run dev
    ```
 
-5. Acesse no navegador o endereço local exibido no terminal
+6. Acesse no navegador o endereço local exibido no terminal
+O catálogo carrega páginas das consultas de séries populares e BL do TMDB, com um botão para carregar mais títulos. A pesquisa por título consulta o TMDB; os filtros por gênero e país atuam sobre os resultados já carregados. A API permite consultar até 500 páginas por pesquisa. A aplicação também recupera os títulos salvos que não estejam nos resultados iniciais. A lista, os assistidos, os favoritos, as notas e os comentários ficam no `localStorage` do navegador, associados aos IDs do TMDB. Esses dados permanecem após recarregar a página, mas não são sincronizados entre dispositivos e podem ser apagados ao limpar os dados do site. Quando o TMDB não informa episódios, o card informa que estão indisponíveis.
