@@ -16,7 +16,8 @@ O **Dorama & BL Watchlist** é um painel interativo para organizar e acompanhar 
 - **Busca Dinâmica:** Campo de pesquisa em tempo real por título da obra ou país de origem.
 - **Filtro por Gênero:** Botões de seleção rápida para alternar entre *Todos*, *BL*, *Romance* e *Fantasia*.
 - **Filtro de Pendências:** Opção para visualizar apenas os títulos que ainda não foram assistidos.
-- **Controle de Status e Contador:** Botão interativo em cada card para marcar/desmarcar como assistido, atualizando automaticamente o placar geral no cabeçalho.
+- **Lista, assistidos e favoritos:** Adicione títulos à lista, marque os assistidos e favorite suas séries. O cabeçalho mostra assistidos em relação ao total adicionado.
+- **Avaliações pessoais:** Depois de marcar uma série como assistida, atribua de uma a cinco estrelas e, se desejar, adicione um comentário.
 
 ---
 
@@ -66,8 +67,9 @@ Em conformidade com os requisitos da **Atividade 01 (Aula 08)**, o projeto aplic
     │   ├── CardDorama.jsx
     │   ├── ListaDoramas.jsx
     │   └── Rodape.jsx
-    ├── data/
-    │   └── doramasData.js
+    ├── services/
+    │   ├── tmdbApi.js
+    │   └── preferenciasStorage.js
     ├── App.css
     ├── App.jsx
     └── main.jsx
@@ -92,7 +94,7 @@ Em conformidade com os requisitos da **Atividade 01 (Aula 08)**, o projeto aplic
    npm install
    ```
 
-4. **Configure o TMDB:** copie `.env.example` para `.env` e substitua `sua_chave_da_api` pela chave de API do TMDB (API Key v3). Reinicie o servidor ap?s alterar o arquivo. A chave ? exposta no navegador pelo Vite; n?o use credenciais privadas ou privilegiadas.
+4. **Configure o TMDB:** crie um arquivo `.env` na raiz com `VITE_TMDB_API_KEY=sua_chave_da_api`, substituindo o valor pela chave de API v3 do TMDB. Reinicie o servidor após alterar o arquivo. A chave é exposta no navegador pelo Vite; não use credenciais privadas ou privilegiadas.
 
 5. **Inicie o servidor de desenvolvimento:**
    ```bash
@@ -100,4 +102,4 @@ Em conformidade com os requisitos da **Atividade 01 (Aula 08)**, o projeto aplic
    ```
 
 6. Acesse no navegador o endereço local exibido no terminal
-O cat?logo usa os resultados da primeira p?gina das consultas de s?ries populares e BL do TMDB; os filtros e a busca atuam nesses t?tulos carregados. O status de assistido dura enquanto a p?gina estiver aberta. Quando o TMDB n?o informa epis?dios na consulta, o card informa que est?o indispon?veis.
+O catálogo usa a primeira página das consultas de séries populares e BL do TMDB e também recupera os títulos salvos que não estejam nesses resultados. A lista, os assistidos, os favoritos, as notas e os comentários ficam no `localStorage` do navegador, associados aos IDs do TMDB. Esses dados permanecem após recarregar a página, mas não são sincronizados entre dispositivos e podem ser apagados ao limpar os dados do site. Quando o TMDB não informa episódios, o card informa que estão indisponíveis.
