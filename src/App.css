@@ -227,3 +227,12 @@ main {
   display: grid;
   gap: 0.5rem;
 }
+
+.avaliacao-salva { margin-bottom: 1rem; overflow-wrap: anywhere; }
+.form-avaliacao { display: grid; gap: 0.5rem; }
+.form-avaliacao fieldset { border: 0; }
+.form-avaliacao textarea { width: 100%; padding: 0.5rem; border: 1px solid #d8d2e2; border-radius: 8px; resize: vertical; }
+.estrelas { display: flex; gap: 0.25rem; color: #a45a00; font-size: 1.8rem; }
+.estrelas label { cursor: pointer; }
+.estrelas input, .texto-acessivel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.estrelas input:focus-visible + span { outline: 2px solid #6d28d9; outline-offset: 2px; }

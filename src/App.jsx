@@ -15,7 +15,7 @@ export function App() {
   const [apenasNaoAssistidos, setApenasNaoAssistidos] = useState(false);
   const [apenasMinhaLista, setApenasMinhaLista] = useState(false);
 
-  // Cancela a requisi??o se o componente for desmontado.
+  // Cancela a requisição se o componente for desmontado.
   useEffect(() => {
     const controlador = new AbortController();
 
@@ -24,7 +24,7 @@ export function App() {
         const resultado = await buscarDoramas(controlador.signal);
         if (!controlador.signal.aborted) setDoramas(resultado);
       } catch (falha) {
-        if (!controlador.signal.aborted) setErro(falha.message || "N?o foi poss?vel carregar os t?tulos.");
+        if (!controlador.signal.aborted) setErro(falha.message || "Não foi possível carregar os títulos.");
       } finally {
         if (!controlador.signal.aborted) setCarregando(false);
       }
@@ -34,10 +34,10 @@ export function App() {
     return () => controlador.abort();
   }, []);
 
-  // Atualiza um item específico; o Virtual DOM reconcilia apenas o card alterado
-  function alternarStatusAssistido(id) {
+  // Uma avaliação salva também marca o título como assistido.
+  function salvarAvaliacao(id, avaliacao) {
     setDoramas((lista) => lista.map((item) =>
-      item.id === id ? { ...item, assistido: !item.assistido } : item
+      item.id === id ? { ...item, assistido: true, avaliacao } : item
     ));
   }
 
@@ -84,13 +84,13 @@ export function App() {
         </label>
 
         {carregando ? (
-          <p className="lista-vazia" role="status">Carregando t?tulos...</p>
+          <p className="lista-vazia" role="status">Carregando títulos...</p>
         ) : erro ? (
           <p className="lista-vazia" role="alert">{erro}</p>
         ) : (
           <ListaDoramas
             doramas={doramasFiltrados}
-            aoAlternarStatus={alternarStatusAssistido}
+            aoAvaliar={salvarAvaliacao}
             aoAlternarLista={alternarMinhaLista}
           />
         )}

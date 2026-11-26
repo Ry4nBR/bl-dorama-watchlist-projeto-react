@@ -1,6 +1,6 @@
 import { CardDorama } from "./CardDorama";
 
-export function ListaDoramas({ doramas, aoAlternarStatus, aoAlternarLista }) {
+export function ListaDoramas({ doramas, aoAvaliar, aoAlternarLista }) {
   if (doramas.length === 0) {
     return (
       <div className="lista-vazia">
@@ -15,7 +15,7 @@ export function ListaDoramas({ doramas, aoAlternarStatus, aoAlternarLista }) {
         <CardDorama
           key={dorama.id}
           dorama={dorama}
-          aoAlternarStatus={aoAlternarStatus}
+          aoAvaliar={aoAvaliar}
           aoAlternarLista={aoAlternarLista}
         />
       ))}
