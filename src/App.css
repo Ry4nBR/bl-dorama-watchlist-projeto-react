@@ -273,6 +273,14 @@ main {
   margin: 0 0 1.5rem;
 }
 
+.aviso-armazenamento {
+  margin-bottom: 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  background: #fff1d6;
+  color: #704500;
+}
+
 .card-rodape {
   display: grid;
   gap: 0.5rem;

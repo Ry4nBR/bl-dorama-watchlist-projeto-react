@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { buscarDoramas } from "./services/tmdbApi";
+import { carregarPreferencias, salvarPreferencias } from "./services/preferenciasStorage";
 import { Cabecalho } from "./components/Cabecalho";
 import { BarraFiltros } from "./components/BarraFiltros";
 import { ListaDoramas } from "./components/ListaDoramas";
@@ -14,6 +15,21 @@ export function App() {
   const [generoSelecionado, setGeneroSelecionado] = useState("Todos");
   const [apenasNaoAssistidos, setApenasNaoAssistidos] = useState(false);
   const [apenasMinhaLista, setApenasMinhaLista] = useState(false);
+  const [armazenamentoInicial] = useState(carregarPreferencias);
+  const [preferencias, setPreferencias] = useState(armazenamentoInicial.preferencias);
+  const [erroArmazenamento, setErroArmazenamento] = useState(armazenamentoInicial.erro);
+  const preferenciasSalvas = useRef(armazenamentoInicial.preferencias);
+
+  // Não grava na montagem: uma falha de leitura não deve apagar dados existentes.
+  useEffect(() => {
+    if (preferencias === preferenciasSalvas.current) return;
+    if (salvarPreferencias(preferencias)) {
+      preferenciasSalvas.current = preferencias;
+      setErroArmazenamento(false);
+    } else {
+      setErroArmazenamento(true);
+    }
+  }, [preferencias]);
 
   // Cancela a requisição se o componente for desmontado.
   useEffect(() => {
@@ -36,31 +52,37 @@ export function App() {
 
   // Avaliações são liberadas após marcar o título como assistido.
   function salvarAvaliacao(id, avaliacao) {
-    setDoramas((lista) => lista.map((item) =>
-      item.id === id && item.naLista && item.assistido ? { ...item, avaliacao } : item
-    ));
+    setPreferencias((atuais) => {
+      const item = atuais[id];
+      return item?.naLista && item.assistido ? { ...atuais, [id]: { ...item, avaliacao } } : atuais;
+    });
   }
 
   function alternarAssistido(id) {
-    setDoramas((lista) => lista.map((item) =>
-      item.id === id && item.naLista ? { ...item, assistido: !item.assistido } : item
-    ));
+    setPreferencias((atuais) => {
+      const item = atuais[id];
+      return item?.naLista ? { ...atuais, [id]: { ...item, assistido: !item.assistido } } : atuais;
+    });
   }
 
   function alternarMinhaLista(id) {
-    setDoramas((lista) => lista.map((item) =>
-      item.id === id ? { ...item, naLista: !item.naLista } : item
-    ));
+    setPreferencias((atuais) => {
+      const item = atuais[id] || {};
+      return { ...atuais, [id]: { ...item, naLista: !item.naLista } };
+    });
   }
 
   function alternarFavorito(id) {
-    setDoramas((lista) => lista.map((item) =>
-      item.id === id && item.naLista ? { ...item, favorito: !item.favorito } : item
-    ));
+    setPreferencias((atuais) => {
+      const item = atuais[id];
+      return item?.naLista ? { ...atuais, [id]: { ...item, favorito: !item.favorito } } : atuais;
+    });
   }
 
+  const doramasComPreferencias = doramas.map((item) => ({ ...item, ...preferencias[item.id] }));
+
   // Filtragem encadeada antes de renderizar
-  const doramasFiltrados = doramas.filter((item) => {
+  const doramasFiltrados = doramasComPreferencias.filter((item) => {
     const bateBusca =
       item.titulo.toLowerCase().includes(busca.toLowerCase()) ||
       item.pais.toLowerCase().includes(busca.toLowerCase());
@@ -71,8 +93,8 @@ export function App() {
     return bateBusca && bateGenero && bateStatus && (!apenasMinhaLista || item.naLista);
   });
 
-  const totalNaLista = doramas.filter((item) => item.naLista).length;
-  const totalAssistidos = doramas.filter((item) => item.naLista && item.assistido).length;
+  const totalNaLista = doramasComPreferencias.filter((item) => item.naLista).length;
+  const totalAssistidos = doramasComPreferencias.filter((item) => item.naLista && item.assistido).length;
 
   return (
     <div className="container">
@@ -82,6 +104,11 @@ export function App() {
       />
 
       <main>
+        {erroArmazenamento && (
+          <p className="aviso-armazenamento" role="alert">
+            Não foi possível acessar os dados salvos no navegador. Suas alterações podem não ser mantidas após recarregar a página.
+          </p>
+        )}
         <BarraFiltros
           busca={busca}
           aoMudarBusca={setBusca}
