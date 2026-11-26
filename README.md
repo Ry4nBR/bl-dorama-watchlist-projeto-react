@@ -92,9 +92,12 @@ Em conformidade com os requisitos da **Atividade 01 (Aula 08)**, o projeto aplic
    npm install
    ```
 
-4. **Inicie o servidor de desenvolvimento:**
+4. **Configure o TMDB:** copie `.env.example` para `.env` e substitua `sua_chave_da_api` pela chave de API do TMDB (API Key v3). Reinicie o servidor ap?s alterar o arquivo. A chave ? exposta no navegador pelo Vite; n?o use credenciais privadas ou privilegiadas.
+
+5. **Inicie o servidor de desenvolvimento:**
    ```bash
    npm run dev
    ```
 
-5. Acesse no navegador o endereço local exibido no terminal
+6. Acesse no navegador o endereço local exibido no terminal
+O cat?logo usa os resultados da primeira p?gina das consultas de s?ries populares e BL do TMDB; os filtros e a busca atuam nesses t?tulos carregados. O status de assistido dura enquanto a p?gina estiver aberta. Quando o TMDB n?o informa epis?dios na consulta, o card informa que est?o indispon?veis.
