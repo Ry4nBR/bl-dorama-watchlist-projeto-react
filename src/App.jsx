@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { buscarDoramas } from "./services/tmdbApi";
+import { buscarDoramas, buscarDoramasSalvos } from "./services/tmdbApi";
 import { carregarPreferencias, salvarPreferencias } from "./services/preferenciasStorage";
 import { Cabecalho } from "./components/Cabecalho";
 import { BarraFiltros } from "./components/BarraFiltros";
@@ -18,6 +18,7 @@ export function App() {
   const [armazenamentoInicial] = useState(carregarPreferencias);
   const [preferencias, setPreferencias] = useState(armazenamentoInicial.preferencias);
   const [erroArmazenamento, setErroArmazenamento] = useState(armazenamentoInicial.erro);
+  const [erroTitulosSalvos, setErroTitulosSalvos] = useState(false);
   const preferenciasSalvas = useRef(armazenamentoInicial.preferencias);
 
   // Não grava na montagem: uma falha de leitura não deve apagar dados existentes.
@@ -38,7 +39,15 @@ export function App() {
     async function carregarDoramas() {
       try {
         const resultado = await buscarDoramas(controlador.signal);
-        if (!controlador.signal.aborted) setDoramas(resultado);
+        const idsCarregados = new Set(resultado.map((item) => String(item.id)));
+        const idsSalvos = Object.entries(armazenamentoInicial.preferencias)
+          .filter(([id, item]) => item.naLista && !idsCarregados.has(id))
+          .map(([id]) => id);
+        const adicionais = await buscarDoramasSalvos(idsSalvos, controlador.signal);
+        if (!controlador.signal.aborted) {
+          setDoramas([...resultado, ...adicionais.doramas]);
+          setErroTitulosSalvos(adicionais.houveFalha);
+        }
       } catch (falha) {
         if (!controlador.signal.aborted) setErro(falha.message || "Não foi possível carregar os títulos.");
       } finally {
@@ -48,7 +57,7 @@ export function App() {
 
     carregarDoramas();
     return () => controlador.abort();
-  }, []);
+  }, [armazenamentoInicial]);
 
   // Avaliações são liberadas após marcar o título como assistido.
   function salvarAvaliacao(id, avaliacao) {
@@ -107,6 +116,11 @@ export function App() {
         {erroArmazenamento && (
           <p className="aviso-armazenamento" role="alert">
             Não foi possível acessar os dados salvos no navegador. Suas alterações podem não ser mantidas após recarregar a página.
+          </p>
+        )}
+        {erroTitulosSalvos && (
+          <p className="aviso-armazenamento" role="alert">
+            Alguns títulos salvos não puderam ser carregados do TMDB. Suas preferências continuam no navegador.
           </p>
         )}
         <BarraFiltros

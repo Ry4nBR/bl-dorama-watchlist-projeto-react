@@ -41,3 +41,17 @@ export async function buscarDoramas(signal) {
   const series = new Map([...populares.results, ...bl.results].map((serie) => [serie.id, serie]));
   return Array.from(series.values(), (serie) => adaptarDorama(serie, idsBL.has(serie.id)));
 }
+
+// Recupera títulos da lista que não estão mais na página atual do catálogo.
+export async function buscarDoramasSalvos(ids, signal) {
+  const resultados = await Promise.allSettled(ids.map(async (id) => {
+    const serie = await requisitar(`/tv/${id}`, { append_to_response: "keywords" }, signal);
+    const generos = (serie.genres ?? []).map((genero) => genero.id);
+    const palavras = serie.keywords?.results ?? [];
+    return adaptarDorama({ ...serie, genre_ids: generos }, palavras.some((palavra) => palavra.id === 289844));
+  }));
+  return {
+    doramas: resultados.filter((resultado) => resultado.status === "fulfilled").map((resultado) => resultado.value),
+    houveFalha: resultados.some((resultado) => resultado.status === "rejected"),
+  };
+}
