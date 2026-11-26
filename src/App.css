@@ -200,3 +200,18 @@ main {
   font-size: 0.85rem;
   color: #6b627a;
 }
+.card-poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  background: #f3e8ff;
+}
+
+.card-poster-ausente {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b627a;
+}
