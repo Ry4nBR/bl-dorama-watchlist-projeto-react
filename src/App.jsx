@@ -59,12 +59,13 @@ export function App() {
     return bateBusca && bateGenero && bateStatus && (!apenasMinhaLista || item.naLista);
   });
 
-  const totalAssistidos = doramas.filter((item) => item.assistido).length;
+  const totalNaLista = doramas.filter((item) => item.naLista).length;
+  const totalAssistidos = doramas.filter((item) => item.naLista && item.assistido).length;
 
   return (
     <div className="container">
       <Cabecalho
-        totalTitulos={doramas.length}
+        totalTitulos={totalNaLista}
         totalAssistidos={totalAssistidos}
       />
 
@@ -80,7 +81,7 @@ export function App() {
 
         <label className="filtro-lista">
           <input type="checkbox" checked={apenasMinhaLista} onChange={(evento) => setApenasMinhaLista(evento.target.checked)} />
-          Mostrar apenas minha lista ({doramas.filter((item) => item.naLista).length})
+          Mostrar apenas minha lista ({totalNaLista})
         </label>
 
         {carregando ? (
