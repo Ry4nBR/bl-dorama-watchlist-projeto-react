@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 
 const LIMITE_SINOPSE = 180;
 
-export function CardDorama({ dorama, aoAvaliar, aoAlternarLista }) {
+export function CardDorama({ dorama, aoAvaliar, aoAlternarLista, aoAlternarAssistido }) {
   const [erroPoster, setErroPoster] = useState(false);
   const [avaliando, setAvaliando] = useState(false);
   const [estrelas, setEstrelas] = useState(dorama.avaliacao?.estrelas ?? 0);
@@ -28,7 +28,7 @@ export function CardDorama({ dorama, aoAvaliar, aoAlternarLista }) {
   }
 
   return (
-    <article className={`card ${dorama.assistido ? "card-assistido" : ""}`}>
+    <article className={`card ${dorama.naLista && dorama.assistido ? "card-assistido" : ""}`}>
       {/* Exibe uma alternativa quando o pôster não existe ou falha ao carregar. */}
       {dorama.poster && !erroPoster ? (
         <img className="card-poster" src={dorama.poster} alt={`Pôster de ${dorama.titulo}`} loading="lazy" onError={() => setErroPoster(true)} />
@@ -62,7 +62,7 @@ export function CardDorama({ dorama, aoAvaliar, aoAlternarLista }) {
         </dialog>
       )}
 
-      {dorama.avaliacao && (
+      {dorama.naLista && dorama.assistido && dorama.avaliacao && (
         <div className="avaliacao-salva">
           <p>Sua avaliação: {"★".repeat(dorama.avaliacao.estrelas)}{"☆".repeat(5 - dorama.avaliacao.estrelas)} ({dorama.avaliacao.estrelas}/5)</p>
           {dorama.avaliacao.comentario && <p>{dorama.avaliacao.comentario}</p>}
@@ -70,13 +70,16 @@ export function CardDorama({ dorama, aoAvaliar, aoAlternarLista }) {
       )}
 
       <div className="card-rodape">
-        <button type="button" className="btn-status pendente" onClick={() => aoAlternarLista(dorama.id)} aria-pressed={Boolean(dorama.naLista)}>
+        <button type="button" className="btn-status pendente" onClick={() => { cancelar(); aoAlternarLista(dorama.id); }} aria-pressed={Boolean(dorama.naLista)}>
           {dorama.naLista ? "✓ Na minha lista (remover)" : "+ Adicionar à lista"}
         </button>
-        {!avaliando && <button type="button" onClick={() => setAvaliando(true)} className="btn-status assistido">
+        {dorama.naLista && <button type="button" className="btn-status assistido" onClick={() => { cancelar(); aoAlternarAssistido(dorama.id); }} aria-pressed={Boolean(dorama.assistido)}>
+          {dorama.assistido ? "✓ Assisti (desmarcar)" : "Já assisti"}
+        </button>}
+        {dorama.naLista && dorama.assistido && !avaliando && <button type="button" onClick={() => setAvaliando(true)} className="btn-status assistido">
           {dorama.avaliacao ? "Editar avaliação" : "Avaliar"}
         </button>}
-        {avaliando && (
+        {dorama.naLista && dorama.assistido && avaliando && (
           <form className="form-avaliacao" onSubmit={salvar}>
             <fieldset>
               <legend>Sua nota (1 a 5 estrelas)</legend>

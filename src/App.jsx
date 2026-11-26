@@ -34,10 +34,16 @@ export function App() {
     return () => controlador.abort();
   }, []);
 
-  // Uma avaliação salva também marca o título como assistido.
+  // Avaliações são liberadas após marcar o título como assistido.
   function salvarAvaliacao(id, avaliacao) {
     setDoramas((lista) => lista.map((item) =>
-      item.id === id ? { ...item, assistido: true, avaliacao } : item
+      item.id === id && item.naLista && item.assistido ? { ...item, avaliacao } : item
+    ));
+  }
+
+  function alternarAssistido(id) {
+    setDoramas((lista) => lista.map((item) =>
+      item.id === id && item.naLista ? { ...item, assistido: !item.assistido } : item
     ));
   }
 
@@ -54,7 +60,7 @@ export function App() {
       item.pais.toLowerCase().includes(busca.toLowerCase());
     const bateGenero =
       generoSelecionado === "Todos" || item.genero === generoSelecionado;
-    const bateStatus = !apenasNaoAssistidos || !item.assistido;
+    const bateStatus = !apenasNaoAssistidos || (item.naLista && !item.assistido);
 
     return bateBusca && bateGenero && bateStatus && (!apenasMinhaLista || item.naLista);
   });
@@ -93,6 +99,7 @@ export function App() {
             doramas={doramasFiltrados}
             aoAvaliar={salvarAvaliacao}
             aoAlternarLista={alternarMinhaLista}
+            aoAlternarAssistido={alternarAssistido}
           />
         )}
       </main>
