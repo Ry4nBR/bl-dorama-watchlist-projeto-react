@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 
 const LIMITE_SINOPSE = 180;
 
-export function CardDorama({ dorama, aoAvaliar, aoAlternarLista, aoAlternarAssistido }) {
+export function CardDorama({ dorama, aoAvaliar, aoAlternarLista, aoAlternarAssistido, aoAlternarFavorito }) {
   const [erroPoster, setErroPoster] = useState(false);
   const [avaliando, setAvaliando] = useState(false);
   const [estrelas, setEstrelas] = useState(dorama.avaliacao?.estrelas ?? 0);
@@ -37,7 +37,14 @@ export function CardDorama({ dorama, aoAvaliar, aoAlternarLista, aoAlternarAssis
       )}
       <div className="card-topo">
         <span className="badge-genero">{dorama.genero}</span>
-        <span className="nota">⭐ {dorama.nota.toFixed(1)}</span>
+        <div className="card-topo-acoes">
+          <span className="nota">⭐ {dorama.nota.toFixed(1)}</span>
+          {dorama.naLista && (
+            <button type="button" className="btn-favorito" onClick={() => aoAlternarFavorito(dorama.id)} aria-pressed={Boolean(dorama.favorito)} aria-label={`${dorama.favorito ? "Remover dos favoritos" : "Adicionar aos favoritos"}: ${dorama.titulo}`}>
+              {dorama.favorito ? "♥" : "♡"}
+            </button>
+          )}
+        </div>
       </div>
 
       <h2>{dorama.titulo}</h2>

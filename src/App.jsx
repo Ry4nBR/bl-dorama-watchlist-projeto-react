@@ -53,6 +53,12 @@ export function App() {
     ));
   }
 
+  function alternarFavorito(id) {
+    setDoramas((lista) => lista.map((item) =>
+      item.id === id && item.naLista ? { ...item, favorito: !item.favorito } : item
+    ));
+  }
+
   // Filtragem encadeada antes de renderizar
   const doramasFiltrados = doramas.filter((item) => {
     const bateBusca =
@@ -100,6 +106,7 @@ export function App() {
             aoAvaliar={salvarAvaliacao}
             aoAlternarLista={alternarMinhaLista}
             aoAlternarAssistido={alternarAssistido}
+            aoAlternarFavorito={alternarFavorito}
           />
         )}
       </main>
