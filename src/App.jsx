@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { doramasIniciais } from "./data/doramasData";
+import { useEffect, useState } from "react";
+import { buscarDoramas } from "./services/tmdbApi";
 import { Cabecalho } from "./components/Cabecalho";
 import { BarraFiltros } from "./components/BarraFiltros";
 import { ListaDoramas } from "./components/ListaDoramas";
@@ -7,17 +7,37 @@ import { Rodape } from "./components/Rodape";
 import "./App.css";
 
 export function App() {
-  const [doramas, setDoramas] = useState(doramasIniciais);
+  const [doramas, setDoramas] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
   const [generoSelecionado, setGeneroSelecionado] = useState("Todos");
   const [apenasNaoAssistidos, setApenasNaoAssistidos] = useState(false);
 
+  // Cancela a requisi??o se o componente for desmontado.
+  useEffect(() => {
+    const controlador = new AbortController();
+
+    async function carregarDoramas() {
+      try {
+        const resultado = await buscarDoramas(controlador.signal);
+        if (!controlador.signal.aborted) setDoramas(resultado);
+      } catch (falha) {
+        if (!controlador.signal.aborted) setErro(falha.message || "N?o foi poss?vel carregar os t?tulos.");
+      } finally {
+        if (!controlador.signal.aborted) setCarregando(false);
+      }
+    }
+
+    carregarDoramas();
+    return () => controlador.abort();
+  }, []);
+
   // Atualiza um item específico; o Virtual DOM reconcilia apenas o card alterado
   function alternarStatusAssistido(id) {
-    const listaAtualizada = doramas.map((item) =>
+    setDoramas((lista) => lista.map((item) =>
       item.id === id ? { ...item, assistido: !item.assistido } : item
-    );
-    setDoramas(listaAtualizada);
+    ));
   }
 
   // Filtragem encadeada antes de renderizar
@@ -51,10 +71,16 @@ export function App() {
           aoAlternarNaoAssistidos={setApenasNaoAssistidos}
         />
 
-        <ListaDoramas
-          doramas={doramasFiltrados}
-          aoAlternarStatus={alternarStatusAssistido}
-        />
+        {carregando ? (
+          <p className="lista-vazia" role="status">Carregando t?tulos...</p>
+        ) : erro ? (
+          <p className="lista-vazia" role="alert">{erro}</p>
+        ) : (
+          <ListaDoramas
+            doramas={doramasFiltrados}
+            aoAlternarStatus={alternarStatusAssistido}
+          />
+        )}
       </main>
 
       <Rodape />
