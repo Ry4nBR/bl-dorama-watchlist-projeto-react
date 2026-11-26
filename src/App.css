@@ -152,9 +152,39 @@ main {
   font-size: 0.92rem;
   line-height: 1.45;
   color: #463e52;
+  overflow-wrap: anywhere;
   margin-bottom: 1.2rem;
   flex: 1;
 }
+
+.btn-ler-mais {
+  margin-top: 0.35rem;
+  border: 0;
+  background: transparent;
+  color: #6d28d9;
+  font-size: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.dialogo-sinopse {
+  width: min(90vw, 560px);
+  max-height: 80vh;
+  margin: auto;
+  padding: 1.5rem;
+  border: 0;
+  border-radius: 12px;
+  color: #2d2638;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+.dialogo-sinopse::backdrop {
+  background: rgba(25, 15, 35, 0.6);
+}
+
+.dialogo-sinopse h2 { margin-bottom: 1rem; }
+.dialogo-sinopse p { line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 1.5rem; }
 
 .btn-status {
   width: 100%;

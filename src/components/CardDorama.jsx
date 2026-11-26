@@ -1,10 +1,18 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+
+const LIMITE_SINOPSE = 180;
 
 export function CardDorama({ dorama, aoAvaliar, aoAlternarLista }) {
   const [erroPoster, setErroPoster] = useState(false);
   const [avaliando, setAvaliando] = useState(false);
   const [estrelas, setEstrelas] = useState(dorama.avaliacao?.estrelas ?? 0);
   const [comentario, setComentario] = useState(dorama.avaliacao?.comentario ?? "");
+  const dialogoSinopse = useRef(null);
+  const caracteresSinopse = Array.from(dorama.sinopse);
+  const sinopseLonga = caracteresSinopse.length > LIMITE_SINOPSE;
+  const resumoSinopse = sinopseLonga
+    ? `${caracteresSinopse.slice(0, LIMITE_SINOPSE).join("").trimEnd()}…`
+    : dorama.sinopse;
 
   function salvar(evento) {
     evento.preventDefault();
@@ -36,7 +44,23 @@ export function CardDorama({ dorama, aoAvaliar, aoAlternarLista }) {
       <p className="meta-info">
         {dorama.pais} • {dorama.episodios != null ? `${dorama.episodios} episódios` : "Episódios não informados"}
       </p>
-      <p className="sinopse">{dorama.sinopse}</p>
+      <div className="sinopse">
+        <p>{resumoSinopse}</p>
+        {sinopseLonga && (
+          <button type="button" className="btn-ler-mais" onClick={() => dialogoSinopse.current?.showModal()}>
+            Ler mais<span className="texto-acessivel"> sobre {dorama.titulo}</span>
+          </button>
+        )}
+      </div>
+      {sinopseLonga && (
+        <dialog ref={dialogoSinopse} className="dialogo-sinopse" aria-labelledby={`titulo-sinopse-${dorama.id}`}>
+          <h2 id={`titulo-sinopse-${dorama.id}`}>Sinopse: {dorama.titulo}</h2>
+          <p>{dorama.sinopse}</p>
+          <button type="button" className="btn-status assistido" onClick={() => dialogoSinopse.current?.close()} autoFocus>
+            Fechar
+          </button>
+        </dialog>
+      )}
 
       {dorama.avaliacao && (
         <div className="avaliacao-salva">
