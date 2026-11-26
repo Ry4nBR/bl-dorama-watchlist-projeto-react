@@ -1,24 +1,111 @@
-export function CardDorama({ dorama, aoAlternarStatus }) {
+import { useRef, useState } from "react";
+
+const LIMITE_SINOPSE = 180;
+
+export function CardDorama({ dorama, aoAvaliar, aoAlternarLista, aoAlternarAssistido, aoAlternarFavorito }) {
+  const [erroPoster, setErroPoster] = useState(false);
+  const [avaliando, setAvaliando] = useState(false);
+  const [estrelas, setEstrelas] = useState(dorama.avaliacao?.estrelas ?? 0);
+  const [comentario, setComentario] = useState(dorama.avaliacao?.comentario ?? "");
+  const dialogoSinopse = useRef(null);
+  const caracteresSinopse = Array.from(dorama.sinopse);
+  const sinopseLonga = caracteresSinopse.length > LIMITE_SINOPSE;
+  const resumoSinopse = sinopseLonga
+    ? `${caracteresSinopse.slice(0, LIMITE_SINOPSE).join("").trimEnd()}…`
+    : dorama.sinopse;
+
+  function salvar(evento) {
+    evento.preventDefault();
+    if (!estrelas) return;
+    aoAvaliar(dorama.id, { estrelas, comentario: comentario.trim() });
+    setAvaliando(false);
+  }
+
+  function cancelar() {
+    setEstrelas(dorama.avaliacao?.estrelas ?? 0);
+    setComentario(dorama.avaliacao?.comentario ?? "");
+    setAvaliando(false);
+  }
+
   return (
-    <article className={`card ${dorama.assistido ? "card-assistido" : ""}`}>
+    <article className={`card ${dorama.naLista && dorama.assistido ? "card-assistido" : ""}`}>
+      {/* Exibe uma alternativa quando o pôster não existe ou falha ao carregar. */}
+      {dorama.poster && !erroPoster ? (
+        <img className="card-poster" src={dorama.poster} alt={`Pôster de ${dorama.titulo}`} loading="lazy" onError={() => setErroPoster(true)} />
+      ) : (
+        <div className="card-poster card-poster-ausente" role="img" aria-label="Pôster indisponível">Pôster indisponível</div>
+      )}
       <div className="card-topo">
         <span className="badge-genero">{dorama.genero}</span>
-        <span className="nota">⭐ {dorama.nota.toFixed(1)}</span>
+        <div className="card-topo-acoes">
+          <span className="nota">⭐ {dorama.nota.toFixed(1)}</span>
+          {dorama.naLista && (
+            <button type="button" className="btn-favorito" onClick={() => aoAlternarFavorito(dorama.id)} aria-pressed={Boolean(dorama.favorito)} aria-label={`${dorama.favorito ? "Remover dos favoritos" : "Adicionar aos favoritos"}: ${dorama.titulo}`}>
+              {dorama.favorito ? "♥" : "♡"}
+            </button>
+          )}
+        </div>
       </div>
 
       <h2>{dorama.titulo}</h2>
       <p className="meta-info">
-        {dorama.pais} • {dorama.episodios} episódios
+        {dorama.pais} • {dorama.episodios != null ? `${dorama.episodios} episódios` : "Episódios não informados"}
       </p>
-      <p className="sinopse">{dorama.sinopse}</p>
+      <div className="sinopse">
+        <p>{resumoSinopse}</p>
+        {sinopseLonga && (
+          <button type="button" className="btn-ler-mais" onClick={() => dialogoSinopse.current?.showModal()}>
+            Ler mais<span className="texto-acessivel"> sobre {dorama.titulo}</span>
+          </button>
+        )}
+      </div>
+      {sinopseLonga && (
+        <dialog ref={dialogoSinopse} className="dialogo-sinopse" aria-labelledby={`titulo-sinopse-${dorama.id}`}>
+          <h2 id={`titulo-sinopse-${dorama.id}`}>Sinopse: {dorama.titulo}</h2>
+          <p>{dorama.sinopse}</p>
+          <button type="button" className="btn-status assistido" onClick={() => dialogoSinopse.current?.close()} autoFocus>
+            Fechar
+          </button>
+        </dialog>
+      )}
+
+      {dorama.naLista && dorama.assistido && dorama.avaliacao && (
+        <div className="avaliacao-salva">
+          <p>Sua avaliação: {"★".repeat(dorama.avaliacao.estrelas)}{"☆".repeat(5 - dorama.avaliacao.estrelas)} ({dorama.avaliacao.estrelas}/5)</p>
+          {dorama.avaliacao.comentario && <p>{dorama.avaliacao.comentario}</p>}
+        </div>
+      )}
 
       <div className="card-rodape">
-        <button
-          onClick={() => aoAlternarStatus(dorama.id)}
-          className={dorama.assistido ? "btn-status assistido" : "btn-status pendente"}
-        >
-          {dorama.assistido ? "✓ Já assisti" : "+ Quero assistir"}
+        <button type="button" className="btn-status pendente" onClick={() => { cancelar(); aoAlternarLista(dorama.id); }} aria-pressed={Boolean(dorama.naLista)}>
+          {dorama.naLista ? "✓ Na minha lista (remover)" : "+ Adicionar à lista"}
         </button>
+        {dorama.naLista && <button type="button" className="btn-status assistido" onClick={() => { cancelar(); aoAlternarAssistido(dorama.id); }} aria-pressed={Boolean(dorama.assistido)}>
+          {dorama.assistido ? "✓ Assisti (desmarcar)" : "Já assisti"}
+        </button>}
+        {dorama.naLista && dorama.assistido && !avaliando && <button type="button" onClick={() => setAvaliando(true)} className="btn-status assistido">
+          {dorama.avaliacao ? "Editar avaliação" : "Avaliar"}
+        </button>}
+        {dorama.naLista && dorama.assistido && avaliando && (
+          <form className="form-avaliacao" onSubmit={salvar}>
+            <fieldset>
+              <legend>Sua nota (1 a 5 estrelas)</legend>
+              <div className="estrelas">
+                {[1, 2, 3, 4, 5].map((valor) => (
+                  <label key={valor}>
+                    <input type="radio" name={`estrelas-${dorama.id}`} value={valor} checked={estrelas === valor} onChange={() => setEstrelas(valor)} required />
+                    <span aria-hidden="true">{valor <= estrelas ? "★" : "☆"}</span>
+                    <span className="texto-acessivel">{valor} {valor === 1 ? "estrela" : "estrelas"}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <label htmlFor={`comentario-${dorama.id}`}>Comentário (opcional)</label>
+            <textarea id={`comentario-${dorama.id}`} value={comentario} onChange={(evento) => setComentario(evento.target.value)} rows={3} />
+            <button className="btn-status assistido" type="submit">Salvar avaliação</button>
+            <button className="btn-status pendente" type="button" onClick={cancelar}>Cancelar</button>
+          </form>
+        )}
       </div>
     </article>
   );

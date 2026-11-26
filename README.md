@@ -16,7 +16,8 @@ O **Dorama & BL Watchlist** é um painel interativo para organizar e acompanhar 
 - **Busca Dinâmica:** Campo de pesquisa em tempo real por título da obra ou país de origem.
 - **Filtro por Gênero:** Botões de seleção rápida para alternar entre *Todos*, *BL*, *Romance* e *Fantasia*.
 - **Filtro de Pendências:** Opção para visualizar apenas os títulos que ainda não foram assistidos.
-- **Controle de Status e Contador:** Botão interativo em cada card para marcar/desmarcar como assistido, atualizando automaticamente o placar geral no cabeçalho.
+- **Lista, assistidos e favoritos:** Adicione títulos à lista, marque os assistidos e favorite suas séries. O cabeçalho mostra assistidos em relação ao total adicionado.
+- **Avaliações pessoais:** Depois de marcar uma série como assistida, atribua de uma a cinco estrelas e, se desejar, adicione um comentário.
 
 ---
 
@@ -66,8 +67,9 @@ Em conformidade com os requisitos da **Atividade 01 (Aula 08)**, o projeto aplic
     │   ├── CardDorama.jsx
     │   ├── ListaDoramas.jsx
     │   └── Rodape.jsx
-    ├── data/
-    │   └── doramasData.js
+    ├── services/
+    │   ├── tmdbApi.js
+    │   └── preferenciasStorage.js
     ├── App.css
     ├── App.jsx
     └── main.jsx
@@ -92,9 +94,12 @@ Em conformidade com os requisitos da **Atividade 01 (Aula 08)**, o projeto aplic
    npm install
    ```
 
-4. **Inicie o servidor de desenvolvimento:**
+4. **Configure o TMDB:** crie um arquivo `.env` na raiz com `VITE_TMDB_API_KEY=sua_chave_da_api`, substituindo o valor pela chave de API v3 do TMDB. Reinicie o servidor após alterar o arquivo. A chave é exposta no navegador pelo Vite; não use credenciais privadas ou privilegiadas.
+
+5. **Inicie o servidor de desenvolvimento:**
    ```bash
    npm run dev
    ```
 
-5. Acesse no navegador o endereço local exibido no terminal
+6. Acesse no navegador o endereço local exibido no terminal
+O catálogo usa a primeira página das consultas de séries populares e BL do TMDB e também recupera os títulos salvos que não estejam nesses resultados. A lista, os assistidos, os favoritos, as notas e os comentários ficam no `localStorage` do navegador, associados aos IDs do TMDB. Esses dados permanecem após recarregar a página, mas não são sincronizados entre dispositivos e podem ser apagados ao limpar os dados do site. Quando o TMDB não informa episódios, o card informa que estão indisponíveis.
